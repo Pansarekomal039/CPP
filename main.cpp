@@ -18,6 +18,7 @@ int main()
     ans = p.add(q);
     ans = p.sub(q);
     ans = p.mul(q);
+    ans = p.div(q);
 
     cout<< "ans=";
     ans.display();
