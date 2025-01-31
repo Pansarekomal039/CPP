@@ -10,5 +10,6 @@ public :
    void display();
  cmplx add(cmplx y);
  cmplx sub(cmplx y);
+ cmplx mul(cmplx y);
 
 };

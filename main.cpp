@@ -2,7 +2,7 @@
 using namespace std;
 int main()
 {
-    cmplx p, q, ans_add, ans_sub;
+    cmplx p, q, ans_add,ans_sub,ans_mul;
 
     p.real=10.00;
     p.img=12.00;
@@ -19,8 +19,14 @@ int main()
     cout << "Addition result: ";
     ans_add.display();
 
-    ans_sub = p.sub(q);
-    cout << "Subtraction result: ";
+    ans_sub=p.sub(q);
+    cout << "Substraction result: ";
     ans_sub.display();
+
+    ans_mul=p.mul(q);
+    cout << "Multiplication  result: ";
+    ans_mul.display();
+
+   
 
 }
