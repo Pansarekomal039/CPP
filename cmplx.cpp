@@ -8,12 +8,11 @@ cmplx::cmplx()
 //   cout<< "Default Constructor";
 }
 
-void cmplx::display()
-{
-cout << real << "+" << img <<"i"<<std::endl;
-cout << real << "-" << img <<"i"<<std::endl;
-cout << real << "*" << img <<"i"<<std::endl;
-cout << real << "/" << img <<"i"<<std::endl;
+void cmplx::display() {
+    if (img >= 0)
+        cout << real << " + " << img << "i" << endl;
+    else
+        cout << real << " - " << -img << "i" << endl;
 }
 
 cmplx cmplx::add (cmplx y)
@@ -32,18 +31,5 @@ cmplx cmplx::sub (cmplx y)
     return c;
 }
 
-cmplx cmplx::mul (cmplx y)
-{
-    cmplx c;
-    c.real = this->real * y.real;
-    c.img = this->img * y.img;
-    return c;
-}
 
-cmplx cmplx::div (cmplx y)
-{
-    cmplx c;
-    c.real = this->real / y.real;
-    c.img = this->img / y.img;
-    return c;
-}
+
