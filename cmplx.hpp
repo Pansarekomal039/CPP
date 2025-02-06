@@ -3,8 +3,7 @@
 {
  public:
    double real;
-   double img;
-   
+   double img;  
 public :
     cmplx();
    void display();
