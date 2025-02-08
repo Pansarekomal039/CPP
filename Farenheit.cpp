@@ -9,3 +9,4 @@ f=c*(9/5.0)+32;
 cout << "Fahrenheit = " << f << endl;
 return 0;
 }
+//https://gbatemp.net/forums/
