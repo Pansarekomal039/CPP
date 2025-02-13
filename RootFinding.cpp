@@ -127,6 +127,6 @@ int main() {
 
     double xn;
     FixedPoint(xn);
-
+    
     return 0;
 }

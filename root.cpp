@@ -1,77 +1,116 @@
-#include <iostream>
-#include <cmath>
-#include <iomanip>
 #include "root.hpp"
 
 using namespace std;
 
-double f(double x) {
-    return 4 * x * x * x - 3 * x;  
-}
+Root::Root() {}  // Constructor (not required but included)
 
-double f_derivative(double x) {
-    return 12 * x * x - 3;  
-}
-
-double g(double x) {  
-    return (x * x + 5) / 5;  
+double Root::f(double x) {
+    return x* x * x  - 3 * x - 9;
 }
 
 
-
-
-
-
-
-#include "root.hpp"
-using namespace std;
-
-cmplx::cmplx()
-{
-    real=0;
-    img=0;
+double Root::f_derivative(double x) {
+    return 12 * x * x - 3;
 }
 
-void cmplx::display()
-{
-    if(img>=0)
-    {
-cout << real << "+" << img <<"i"<<std::endl;
-    }
-    else
-    {
-cout << real << "-" << -img <<"i"<<std::endl;
-    }
+double Root::g(double x) {
+    return (x * x + 5) / 5;
 }
 
+void Root::bisection(double a, double b) {
+    double x, fx, fa, fb;
+    cout << fixed << setprecision(5);
 
-cmplx cmplx::add (cmplx y)
-{
-    cmplx c;
-    c.real = this->real + y.real;
-    c.img = this->img + y.img;
-    return c;
+    cout << "Enter the value of a: ";
+    cin >> a;
+    cout << "Enter the value of b: ";
+    cin >> b;
+
+    cout << "\nIteration\t  a\t\t b\t\t f(a)\t\t f(b)\t\t x\t\t f(x)" << endl;
+    int iteration = 1;
+    fa = f(a);
+    fb = f(b);
+
+    do {
+        x = (a + b) / 2;
+        fx = f(x);
+        cout << iteration << "\t\t" << a << "\t" << b << "\t" << fa << "\t" << fb << "\t\t" << x << "\t" << fx << endl;
+
+        if (fx < 0) {
+            a = x;
+            fa = fx;
+        } else {
+            b = x;
+            fb = fx;
+        }
+        iteration++;
+
+    } while (fabs(b - a) > 0.00001);
+
+    cout << "The root is " << x << endl;
 }
 
-cmplx cmplx::sub (cmplx y)
-{
-    cmplx c;
-    c.real = this->real - y.real;
-    c.img = this->img - y.img;
-    return c;
+void Root::newtonRaphson(double x0) {
+    double x, fx, fdx, x_next;
+    const double tolerance = 0.00001;
+    int iteration = 1;
+
+    cout << "Enter the initial guess: ";
+    cin >> x0;
+    x = x0;
+
+    cout << fixed << setprecision(5);
+    cout << "\nIteration\t  x\t\t  f(x)\t\t  f'(x)" << endl;
+
+    do {
+        fx = f(x);
+        fdx = f_derivative(x);
+
+        if (fdx == 0) {
+            cout << "Error: Derivative is zero" << endl;
+            return;
+        }
+
+        x_next = x - (fx / fdx);
+
+        cout << iteration << "\t\t" << x << "\t" << fx << "\t" << fdx << endl;
+
+        if (fabs(x_next - x) < tolerance)
+            break;
+
+        x = x_next;
+        iteration++;
+
+    } while (true);
+
+    cout << "\nApproximate Root from Newton-Raphson: " << x << endl;
 }
 
-cmplx cmplx::mul (cmplx y)
-{
-    cmplx c;
-    c.real = (this->real * y.real)-(this->img * y.img);
-    c.img = (this->real * y.img)+(this->img * y.real);
-    return c;
+void Root::FixedPoint(double x0) {
+    const double tolerance = 0.00001;
+    int maxIterations = 100;
+    int iteration = 1;
+    double x = x0, x_next;
+
+    cout << "Enter the initial guess: ";
+    cin >> x0;
+    x = x0;
+
+    cout << fixed << setprecision(5);
+    cout << "\nIteration\t  x\t\t  g(x)\n";
+
+    do {
+        x_next = g(x);
+
+        cout << iteration << "\t\t" << x << "\t" << x_next << endl;
+
+        if (fabs(x_next - x) < tolerance)
+            break;
+
+        x = x_next;
+        iteration++;
+
+    } while (iteration <= maxIterations);
+
+    cout << "\nApproximate Root from Fixed-Point Iteration: " << x << endl;
 }
-
-
-
-
-
-
-
