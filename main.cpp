@@ -8,6 +8,7 @@ int main()
     q.real=20.00;
     q.img=13.00;
 
+    
     cout<< "p=";
     p.display();
 
