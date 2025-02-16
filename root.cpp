@@ -2,19 +2,18 @@
 
 using namespace std;
 
-Root::Root() {}  // Constructor (not required but included)
-
+Root::Root() {}  
 double Root::f(double x) {
-    return x* x * x  - 3 * x - 9;
+    return x* x  + 3 * x - 5;
 }
 
 
 double Root::f_derivative(double x) {
-    return 12 * x * x - 3;
+    return x* x  + 3 * x - 5;
 }
 
 double Root::g(double x) {
-    return (x * x + 5) / 5;
+    return x* x  + 3 * x - 5;
 }
 
 void Root::bisection(double a, double b) {
