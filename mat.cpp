@@ -1,7 +1,6 @@
 #include "mat.hpp"
 
 using namespace std;
-
 Matrix::Matrix(int r, int c) : rows(r), cols(c) {
     data.resize(rows, vector<int>(cols, 0));  
 }
