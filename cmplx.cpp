@@ -1,6 +1,5 @@
 #include "cmplx.hpp"
 using namespace std;
-
 cmplx::cmplx()
 {
     real=0;

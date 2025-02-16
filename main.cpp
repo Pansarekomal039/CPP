@@ -3,7 +3,6 @@ using namespace std;
 int main()
 {
     cmplx p, q, ans_add,ans_sub,ans_mul;
-
     p.real=10.00;
     p.img=12.00;
     q.real=20.00;

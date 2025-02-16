@@ -5,7 +5,6 @@ using namespace std;
 Matrix::Matrix(int r, int c) : rows(r), cols(c) {
     data.resize(rows, vector<int>(cols, 0));  
 }
-
 void Matrix::inputMatrix() {
     cout << "Enter elements for a " << rows << "x" << cols << " matrix:\n";
     for (int i = 0; i < rows; ++i) {
