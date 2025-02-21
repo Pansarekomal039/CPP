@@ -3,29 +3,28 @@
 using namespace std;
 
 int main() {
-    int r, c;
-    
-    cout << "Enter the number of rows and columns for the matrices: ";
-    cin >> r >> c;
+    Matrix A(3, 3);  
+    Matrix B(3, 3);  
 
-    Matrix A(r, c);
-    Matrix B(r, c);
+    cout << "Reading Matrix A from file..." << endl;
+    A.readFromFile("matrixA.txt");
+    cout << "Matrix A:\n";
+    A.display();
 
-    cout << "Enter values for Matrix A:\n";
-    A.inputMatrix();
-    
-    cout << "Enter values for Matrix B:\n";
-    B.inputMatrix();
+    cout << "\nReading Matrix B from file..." << endl;
+    B.readFromFile("matrixB.txt");
+    cout << "Matrix B:\n";
+    B.display();
 
+    cout << "\nMatrix A + Matrix B:\n";
     Matrix sum = A.add(B);
-    cout << "Matrix A + Matrix B:\n";
-    sum.displayMatrix();
+    sum.display();
 
+    cout << "\nMatrix A - Matrix B:\n";
     Matrix diff = A.subtract(B);
-    cout << "Matrix A - Matrix B:\n";
-    diff.displayMatrix();
+    diff.display();
 
-    cout << "Checking if Matrix A is an identity matrix: " << (A.isIdentity() ? "Yes" : "No") << endl;
+    cout << "\nChecking if Matrix A is an identity matrix: " << (A.isIdentity() ? "Yes" : "No") << endl;
     cout << "Checking if Matrix B is an identity matrix: " << (B.isIdentity() ? "Yes" : "No") << endl;
 
     return 0;
