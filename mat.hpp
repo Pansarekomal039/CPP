@@ -19,4 +19,4 @@ public:
     bool isIdentity() const;
 };
 
-#endif // MATRIX_HPP
+#endif 

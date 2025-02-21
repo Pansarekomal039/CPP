@@ -1,12 +1,10 @@
 #include "mat.hpp"
 using namespace std;
 
-// Constructor
 Matrix::Matrix(int r, int c) : rows(r), cols(c) {
     data.resize(rows, vector<int>(cols, 0));
 }
 
-// Read matrix from a file
 void Matrix::readFromFile(const string& filename) {
     ifstream file(filename);
     if (!file) {
@@ -21,7 +19,6 @@ void Matrix::readFromFile(const string& filename) {
     file.close();
 }
 
-// Display matrix
 void Matrix::display() const {
     for (const auto& row : data) {
         for (int val : row) {
@@ -31,7 +28,6 @@ void Matrix::display() const {
     }
 }
 
-// Add two matrices
 Matrix Matrix::add(const Matrix& other) const {
     Matrix result(rows, cols);
     for (int i = 0; i < rows; ++i) {
@@ -42,7 +38,6 @@ Matrix Matrix::add(const Matrix& other) const {
     return result;
 }
 
-// Subtract two matrices
 Matrix Matrix::subtract(const Matrix& other) const {
     Matrix result(rows, cols);
     for (int i = 0; i < rows; ++i) {
@@ -53,7 +48,6 @@ Matrix Matrix::subtract(const Matrix& other) const {
     return result;
 }
 
-// Check if matrix is an identity matrix
 bool Matrix::isIdentity() const {
     if (rows != cols) return false;
 
