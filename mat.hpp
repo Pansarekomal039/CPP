@@ -1,22 +1,25 @@
-#ifndef MATRIX_HPP
-#define MATRIX_HPP
-
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <iomanip>
+using namespace std;
 
 class Matrix {
 private:
     int rows, cols;
-    std::vector<std::vector<int>> data;
+    vector<vector<int>> mat;
+    vector<vector<double>> augmentedMatrix;  
+    vector<double> sol;  
 
 public:
     Matrix(int r, int c);  
-    void readFromFile(const std::string& filename);
-    void display() const;
-    Matrix add(const Matrix& other) const;
-    Matrix subtract(const Matrix& other) const;
-    bool isIdentity() const;
+    void readFromFile(const string& filename);  
+    void display(); 
+    Matrix add(const Matrix& Mat);  
+    Matrix subtract(const Matrix& Mat);  
+    bool isIdentity();  
+    void eliminate();  
+    void backSubstitute();  
+    void printSolution();  
 };
 
-#endif 
