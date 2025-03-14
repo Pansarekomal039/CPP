@@ -17,12 +17,12 @@ void Gauss::readMatrix() {
 
     file >> n >> m; 
     
-    augmentedMatrix = vector<vector<double>>(n, vector<double>(m)); 
+    a = vector<vector<double>>(n, vector<double>(m)); 
 
     cout << "Reading matrix from file: " << filename << "\n";
     for(int i = 0; i < n; i++) {
         for(int j = 0; j < m; j++) {
-            file >> augmentedMatrix[i][j];
+            file >> a[i][j];
         }
     }
     
@@ -31,15 +31,14 @@ void Gauss::readMatrix() {
 
 void Gauss::eliminate() {
     for(int i = 0; i < n - 1; i++) {
-        if(fabs(augmentedMatrix[i][i]) < 0.0001) {
+        if(fabs(a[i][i]) < 0.0001) {
             cerr << "Mathematical Error: Division by zero!" << endl;
-            exit(EXIT_FAILURE);
         }
 
         for(int j = i + 1; j < n; j++) {
-            double i = augmentedMatrix[j][i] / augmentedMatrix[i][i];
+            double i = a[j][i] / a[i][i];
             for(int k = 0; k < m; k++) {  
-                augmentedMatrix[j][k] -= i * augmentedMatrix[i][k];
+                a[j][k] -= i * a[i][k];
             }
         }
     }
@@ -48,14 +47,14 @@ void Gauss::eliminate() {
 void Gauss::backSubstitute() {
     sol = vector<double>(n);
 
-    sol[n - 1] = augmentedMatrix[n - 1][m - 1] / augmentedMatrix[n - 1][n - 1];  
+    sol[n - 1] = a[n - 1][m - 1] / a[n - 1][n - 1];  
 
     for(int i = n - 2; i >= 0; i--) {
-        sol[i] = augmentedMatrix[i][m - 1];  
+        sol[i] = a[i][m - 1];  
         for(int j = i + 1; j < n; j++) {
-            sol[i] -= augmentedMatrix[i][j] * sol[j];
+            sol[i] -= a[i][j] * sol[j];
         }
-        sol[i] /= augmentedMatrix[i][i];
+        sol[i] /= a[i][i];
     }
 }
 

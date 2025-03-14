@@ -2,24 +2,26 @@
 #include <vector>
 #include <fstream>
 #include <iomanip>
+#include <cmath> 
+
 using namespace std;
 
 class Matrix {
 private:
-    int rows, cols;
-    vector<vector<int>> mat;
-    vector<vector<double>> augmentedMatrix;  
-    vector<double> sol;  
+    int r,c; 
+    vector<vector<int>> matrix; 
+    vector<vector<double>> a; 
+    vector<double> sol; 
 
 public:
-    Matrix(int r, int c);  
-    void readFromFile(const string& filename);  
-    void display(); 
-    Matrix add(const Matrix& Mat);  
-    Matrix subtract(const Matrix& Mat);  
-    bool isIdentity();  
-    void eliminate();  
-    void backSubstitute();  
-    void printSolution();  
+    Matrix(); 
+    void readFile(const string filename); 
+    void display() ; 
+    Matrix add(const Matrix other) ; 
+    Matrix subtract(const Matrix other); 
+    bool isIdentity() ; 
+    void eliminate(); 
+    void backSubstitute(); 
+    void printSolution() ; 
+    void luDecomposition() ;
 };
-

@@ -4,16 +4,23 @@
 using namespace std;
 
 int main() {
-    Matrix A(3, 3);  
-    Matrix B(3, 3); 
+    string filenameA, filenameB;
 
-    cout << "Reading Matrix A from file..." << endl;
-    A.readFromFile("matrixA.txt");
+    cout << "Enter the filename for Matrix A: ";
+    cin >> filenameA;
+
+    cout << "Enter the filename for Matrix B: ";
+    cin >> filenameB;
+
+    Matrix A, B; 
+
+    cout << "Matrix A" << endl;
+    A.readFile(filenameA);
     cout << "Matrix A:\n";
     A.display();
 
-    cout << "\nReading Matrix B from file..." << endl;
-    B.readFromFile("matrixB.txt");
+    cout << "\nMatrix B" << endl;
+    B.readFile(filenameB);
     cout << "Matrix B:\n";
     B.display();
 
@@ -25,15 +32,16 @@ int main() {
     Matrix sub = A.subtract(B);
     sub.display();
 
-    cout << "\nChecking if Matrix A is an identity matrix: " << (A.isIdentity() ? "Yes" : "No") << endl;
-    cout << "Checking if Matrix B is an identity matrix: " << (B.isIdentity() ? "Yes" : "No") << endl;
+    cout << "\nIs Matrix A an identity matrix? " << (A.isIdentity() ? "Yes" : "No") << endl;
+    cout << "Is Matrix B an identity matrix? " << (B.isIdentity() ? "Yes" : "No") << endl;
 
-    cout << "\n Gaussian elimination on Matrix A\n";
-    A.eliminate();
+    cout << "\n Gaussian elimination " << endl;
+    B.eliminate();
+    B.backSubstitute();
+    B.printSolution();
 
-    cout << "\nback substitution on Matrix A\n";
-    A.backSubstitute();
-    A.printSolution();
+    cout << "\n LU Decomposition " << endl;
+    A.luDecomposition();
 
     return 0;
 }
