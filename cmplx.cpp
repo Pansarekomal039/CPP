@@ -5,7 +5,6 @@ cmplx::cmplx()
     real=0;
     img=0;
 }
-
 void cmplx::display()
 {
     if(img>=0)
