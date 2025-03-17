@@ -41,7 +41,9 @@ int main() {
     B.printSolution();
 
     cout << "\n LU Decomposition " << endl;
-    A.luDecomposition();
+    A.Doolittle();
+    A.crout();
+    A.cholesky();
 
     return 0;
 }
