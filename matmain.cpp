@@ -1,27 +1,26 @@
-#include "mat.hpp"
 #include <iostream>
-
+#include <string>
+#include "mat.hpp"
 using namespace std;
 
 int main() {
-    string filenameA, filenameB;
+    string filenameA, filenameB, gaussFileA, gaussFileB;
 
+    // Input for regular matrices
     cout << "Enter the filename for Matrix A: ";
     cin >> filenameA;
 
     cout << "Enter the filename for Matrix B: ";
     cin >> filenameB;
 
-    Matrix A, B; 
-
-    cout << "Matrix A" << endl;
+    Matrix A, B;
     A.readFile(filenameA);
-    cout << "Matrix A:\n";
+    B.readFile(filenameB);
+
+    cout << "\nMatrix A:\n";
     A.display();
 
-    cout << "\nMatrix B" << endl;
-    B.readFile(filenameB);
-    cout << "Matrix B:\n";
+    cout << "\nMatrix B:\n";
     B.display();
 
     cout << "\nMatrix A + Matrix B:\n";
@@ -35,12 +34,21 @@ int main() {
     cout << "\nIs Matrix A an identity matrix? " << (A.isIdentity() ? "Yes" : "No") << endl;
     cout << "Is Matrix B an identity matrix? " << (B.isIdentity() ? "Yes" : "No") << endl;
 
-    cout << "\n Gaussian elimination " << endl;
-    B.eliminate();
-    B.backSubstitute();
-    B.printSolution();
+    // Input for Gaussian elimination matrices
+    cout << "\nEnter the filename for the Gaussian elimination matrix: ";
+    cin >> gaussFileA;
 
-    cout << "\n LU Decomposition " << endl;
+    cout << "Enter the filename for the augmented column: ";
+    cin >> gaussFileB;
+
+    cout << "\nGaussian elimination:\n";
+    Matrix gaussMatrix;
+    gaussMatrix.readAugmentedMatrix(gaussFileA, gaussFileB);
+    gaussMatrix.eliminate();
+    gaussMatrix.backSubstitute();
+    gaussMatrix.printSolution();
+
+    cout << "\nLU Decomposition:\n";
     A.Doolittle();
     A.crout();
     A.cholesky();
