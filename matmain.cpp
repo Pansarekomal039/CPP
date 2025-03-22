@@ -34,7 +34,6 @@ int main() {
     cout << "\nIs Matrix A an identity matrix? " << (A.isIdentity() ? "Yes" : "No") << endl;
     cout << "Is Matrix B an identity matrix? " << (B.isIdentity() ? "Yes" : "No") << endl;
 
-    // Input for Gaussian elimination matrices
     cout << "\nEnter the filename for the Gaussian elimination matrix: ";
     cin >> gaussFileA;
 
@@ -45,13 +44,10 @@ int main() {
     Matrix gaussMatrix;
     gaussMatrix.readAugmentedMatrix(gaussFileA, gaussFileB);
     gaussMatrix.eliminate();
-    gaussMatrix.backSubstitute();
-    gaussMatrix.printSolution();
 
     cout << "\nLU Decomposition:\n";
     A.Doolittle();
     A.crout();
-    A.cholesky();
 
     return 0;
 }

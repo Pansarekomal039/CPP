@@ -1,21 +1,21 @@
 #include "mat.hpp"
+
 using namespace std;
 
-// Constructor initializes rows and columns to zero
-Matrix::Matrix() : r(0), c(0) {}
+Matrix::Matrix() : r(0), c(0), matrix(0, vector<double>(0, 0)) {}
 
-// Read matrix from a file
+Matrix::Matrix(int r, int c) : r(r), c(c), matrix(r, vector<double>(c, 0)) {}
+
 void Matrix::readFile(const string& filename) {
     ifstream file(filename);
     if (!file) {
         cerr << "Error: Could not open file " << filename << endl;
-        exit(1);
+        return;
     }
 
-    file >> r >> c; // Read dimensions
-    matrix.resize(r, vector<double>(c)); // Resize matrix
+    file >> r >> c;
+    matrix = vector<vector<double>>(r, vector<double>(c));
 
-    // Read matrix data
     for (int i = 0; i < r; i++) {
         for (int j = 0; j < c; j++) {
             file >> matrix[i][j];
@@ -23,35 +23,31 @@ void Matrix::readFile(const string& filename) {
     }
     file.close();
 }
-
 void Matrix::readAugmentedMatrix(const string& filenameA, const string& filenameB) {
     ifstream fileA(filenameA), fileB(filenameB);
 
     if (!fileA || !fileB) {
-        cerr << "Error: Could not open one or both files: " << filenameA << ", " << filenameB << endl;
+        cerr << "Error: File not found: " << filenameA << ", " << filenameB << endl;
         exit(1);
     }
 
-    fileA >> r >> c; // Read dimensions from matrix file
-    matrix.resize(r, vector<double>(c + 1)); // One extra column for augmented matrix
+    fileA >> r >> c;
+    c += 1; 
+    matrix = vector<vector<double>>(r, vector<double>(c));
 
-    // Read matrix data
     for (int i = 0; i < r; i++) {
-        for (int j = 0; j < c; j++) {
+        for (int j = 0; j < c - 1; j++) {
             fileA >> matrix[i][j];
         }
-    }
-
-    // Read augmented column from the second file
-    for (int i = 0; i < r; i++) {
-        fileB >> matrix[i][c]; // Augmented column goes into the last column
+        fileB >> matrix[i][c - 1];
     }
 
     fileA.close();
     fileB.close();
 }
 
-// Display the matrix
+
+
 void Matrix::display() const {
     for (const auto& row : matrix) {
         for (double val : row) {
@@ -61,13 +57,11 @@ void Matrix::display() const {
     }
 }
 
-// Add two matrices
 Matrix Matrix::add(const Matrix& other) const {
-    Matrix res;
-    res.r = r;
-    res.c = c;
-    res.matrix.resize(r, vector<double>(c));
-
+    if (r != other.r || c != other.c) {
+        cerr << "Error: rows is not equal to column\n";
+    }
+    Matrix res(r, c);
     for (int i = 0; i < r; i++) {
         for (int j = 0; j < c; j++) {
             res.matrix[i][j] = matrix[i][j] + other.matrix[i][j];
@@ -76,13 +70,11 @@ Matrix Matrix::add(const Matrix& other) const {
     return res;
 }
 
-// Subtract two matrices
 Matrix Matrix::subtract(const Matrix& other) const {
-    Matrix res;
-    res.r = r;
-    res.c = c;
-    res.matrix.resize(r, vector<double>(c));
-
+    if (r != other.r || c != other.c) {
+        cerr << "Error: rows is not equal to column\n";
+    }
+    Matrix res(r, c);
     for (int i = 0; i < r; i++) {
         for (int j = 0; j < c; j++) {
             res.matrix[i][j] = matrix[i][j] - other.matrix[i][j];
@@ -91,10 +83,8 @@ Matrix Matrix::subtract(const Matrix& other) const {
     return res;
 }
 
-// Check if the matrix is an identity matrix
 bool Matrix::isIdentity() const {
-    if (r != c) return false; // Must be square
-
+    if (r != c) return false;
     for (int i = 0; i < r; i++) {
         for (int j = 0; j < c; j++) {
             if ((i == j && matrix[i][j] != 1.0) || (i != j && matrix[i][j] != 0.0)) {
@@ -107,182 +97,97 @@ bool Matrix::isIdentity() const {
 
 void Matrix::eliminate() {
     for (int i = 0; i < r; i++) {
-        // Partial pivoting
         int maxRow = i;
         for (int k = i + 1; k < r; k++) {
             if (fabs(matrix[k][i]) > fabs(matrix[maxRow][i])) {
                 maxRow = k;
             }
         }
+        swap(matrix[i], matrix[maxRow]);
 
-        // Swap rows
-        if (maxRow != i) {
-            swap(matrix[i], matrix[maxRow]);
-        }
-
-        // Check for zero pivot (matrix is singular)
-        if (fabs(matrix[i][i]) < 1e-10) {
-            cerr << "Error: Matrix is singular or nearly singular (zero pivot encountered)." << endl;
-            return;
-        }
-
-        // Eliminate below the pivot
         for (int j = i + 1; j < r; j++) {
             double factor = matrix[j][i] / matrix[i][i];
-            for (int k = i; k <= c; k++) {
+            for (int k = i; k < c; k++) {
                 matrix[j][k] -= factor * matrix[i][k];
             }
         }
-
-        // Debug: Print matrix after each step
-        cout << "\nMatrix after step " << i + 1 << ":\n";
-        display();
     }
-
-    cout << "\nAugmented Matrix after Gaussian Elimination:\n";
+    cout << "\nAugmented Matrix\n";
     display();
-}
-
-void Matrix::backSubstitute() {
-    sol.resize(r);
-    for (int i = r - 1; i >= 0; i--) {
-        if (fabs(matrix[i][i]) < 1e-10) {
-            cerr << "Error: Matrix is singular or nearly singular (zero pivot encountered)." << endl;
-            sol.clear();
-            return;
+        
+        for (int i = r - 1; i >= 0; i--) {
+            double sum = 0;
+            for (int j = i + 1; j < c - 1; j++) {
+                sum += matrix[i][j] * x[j];
+            }
+            x[i] = (matrix[i][c - 1] - sum) / matrix[i][i];
         }
-
-        sol[i] = matrix[i][c];
-        for (int j = i + 1; j < r; j++) {
-            sol[i] -= matrix[i][j] * sol[j];
-        }
-        sol[i] /= matrix[i][i];
     }
-}
-// Print the solution
-void Matrix::printSolution() const {
-    if (sol.empty()) {
-        cerr << "No solution found. Matrix is singular." << endl;
+    
+
+
+  
+
+void Matrix::Doolittle() {
+    if (r != c) {
+        cerr << "Error: LU decomposition requires a square matrix\n";
         return;
     }
-
-    cout << "\nSolution:\n";
-    for (int i = 0; i < r; i++) {
-        cout << "x[" << i + 1 << "] = " << sol[i] << endl;
-    }
-}
-
-// Doolittle's LU decomposition
-void Matrix::Doolittle() const {
-    vector<vector<double>> L(r, vector<double>(r, 0));
-    vector<vector<double>> U(r, vector<double>(r, 0));
+    Matrix L(r, c), U(r, c);
 
     for (int i = 0; i < r; i++) {
-        for (int j = i; j < r; j++) {
+        for (int j = i; j < c; j++) {
             double sum = 0;
             for (int k = 0; k < i; k++) {
-                sum += L[i][k] * U[k][j];
+                sum += L.matrix[i][k] * U.matrix[k][j];
             }
-            U[i][j] = matrix[i][j] - sum;
+            U.matrix[i][j] = matrix[i][j] - sum;
         }
-
         for (int j = i; j < r; j++) {
             if (i == j) {
-                L[i][i] = 1; // Diagonal elements of L are 1
+                L.matrix[i][i] = 1;
             } else {
-                double sum = 0;
+                double sum = 0;  
                 for (int k = 0; k < i; k++) {
-                    sum += L[j][k] * U[k][i];
+                    sum += L.matrix[j][k] * U.matrix[k][i];
                 }
-                L[j][i] = (matrix[j][i] - sum) / U[i][i];
+                L.matrix[j][i] = (matrix[j][i] - sum) / U.matrix[i][i];
             }
         }
     }
-
-    cout << "\nLower Triangular Matrix (L):\n";
-    for (const auto& row : L) {
-        for (double val : row) cout << val << " ";
-        cout << endl;
-    }
-
-    cout << "\nUpper Triangular Matrix (U):\n";
-    for (const auto& row : U) {
-        for (double val : row) cout << val << " ";
-        cout << endl;
-    }
+    cout << "\nLower Triangular Matrix\n";
+    L.display();
+    cout << "\nUpper Triangular Matrix\n";
+    U.display();
 }
 
-// Crout's LU decomposition
-void Matrix::crout() const {
-    vector<vector<double>> L(r, vector<double>(r, 0));
-    vector<vector<double>> U(r, vector<double>(r, 0));
+void Matrix::crout() {
+    if (r != c) {
+        cerr << "Error: LU decomposition requires a square matrix\n";
+        return;
+    }
+    Matrix L(r, c), U(r, c);
 
     for (int i = 0; i < r; i++) {
-        U[i][i] = 1; // Diagonal elements of U are 1
-        for (int j = 0; j < r; j++) {
+        U.matrix[i][i] = 1;
+        for (int j = i; j < c; j++) {
             double sum = 0;
             for (int k = 0; k < i; k++) {
-                sum += L[j][k] * U[k][i];
+                sum += L.matrix[j][k] * U.matrix[k][i];
             }
-            L[j][i] = matrix[j][i] - sum;
+            L.matrix[j][i] = matrix[j][i] - sum;
         }
-
-        for (int j = i + 1; j < r; j++) {
+        for (int j = i + 1; j < c; j++) {
             double sum = 0;
             for (int k = 0; k < i; k++) {
-                sum += L[i][k] * U[k][j];
+                sum += L.matrix[i][k] * U.matrix[k][j];
             }
-            U[i][j] = (matrix[i][j] - sum) / L[i][i];
+            U.matrix[i][j] = (matrix[i][j] - sum) / L.matrix[i][i];
         }
     }
-
     cout << "\nCrout's LU Decomposition\n";
     cout << "Lower Triangular Matrix (L):\n";
-    for (const auto& row : L) {
-        for (double val : row) cout << val << " ";
-        cout << endl;
-    }
-
+    L.display();
     cout << "Upper Triangular Matrix (U):\n";
-    for (const auto& row : U) {
-        for (double val : row) cout << val << " ";
-        cout << endl;
-    }
-}
-
-// Cholesky decomposition
-void Matrix::cholesky() const {
-    vector<vector<double>> L(r, vector<double>(r, 0));
-
-    for (int i = 0; i < r; i++) {
-        for (int j = 0; j <= i; j++) {
-            double sum = 0;
-            if (j == i) {
-                for (int k = 0; k < j; k++) {
-                    sum += L[j][k] * L[j][k];
-                }
-                L[j][j] = sqrt(matrix[j][j] - sum);
-            } else {
-                for (int k = 0; k < j; k++) {
-                    sum += L[i][k] * L[j][k];
-                }
-                L[i][j] = (matrix[i][j] - sum) / L[j][j];
-            }
-        }
-    }
-
-    cout << "\nCholesky Decomposition\n";
-    cout << "Lower Triangular Matrix (L):\n";
-    for (const auto& row : L) {
-        for (double val : row) cout << val << " ";
-        cout << endl;
-    }
-
-    cout << "Upper Triangular Matrix (U = L^T):\n";
-    for (int i = 0; i < r; i++) {
-        for (int j = 0; j < r; j++) {
-            cout << L[j][i] << " ";
-        }
-        cout << endl;
-    }
+    U.display();
 }
