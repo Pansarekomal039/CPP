@@ -10,7 +10,6 @@ cout << "Fahrenheit = " << f << endl;
 return 0;
 }
 
-
 #define MATRIX_HPP
 
 #include <iostream>
