@@ -1,7 +1,5 @@
 #include "mat.hpp"
 
-using namespace std;
-
 Matrix::Matrix() : r(0), c(0), matrix(0, vector<double>(0, 0)) {}
 
 Matrix::Matrix(int r, int c) : r(r), c(c), matrix(r, vector<double>(c, 0)) {}
@@ -23,6 +21,7 @@ void Matrix::readFile(const string& filename) {
     }
     file.close();
 }
+
 void Matrix::readAugmentedMatrix(const string& filenameA, const string& filenameB) {
     ifstream fileA(filenameA), fileB(filenameB);
 
@@ -46,20 +45,32 @@ void Matrix::readAugmentedMatrix(const string& filenameA, const string& filename
     fileB.close();
 }
 
-
-
 void Matrix::display() const {
     for (const auto& row : matrix) {
         for (double val : row) {
-            cout << setw(8) << setprecision(3) << fixed << val << " ";
+            if (isnan(val))
+                cout << setw(12) << "NaN" << " ";
+            else
+                cout << setw(12) << setprecision(6) << fixed << val << " ";
         }
         cout << endl;
     }
 }
 
+void Matrix::displaySolution() const {
+    if (solution.empty()) {
+        cout << "Solution not yet computed." << endl;
+        return;
+    }
+    cout << "Solution:" << endl;
+    for (size_t i = 0; i < solution.size(); i++) {
+        cout << "x[" << i << "] = " << setprecision(10) << solution[i] << endl;
+    }
+}
+
 Matrix Matrix::add(const Matrix& other) const {
     if (r != other.r || c != other.c) {
-        cerr << "Error: rows is not equal to column\n";
+        throw runtime_error("Error: Matrix dimensions don't match for addition");
     }
     Matrix res(r, c);
     for (int i = 0; i < r; i++) {
@@ -72,7 +83,7 @@ Matrix Matrix::add(const Matrix& other) const {
 
 Matrix Matrix::subtract(const Matrix& other) const {
     if (r != other.r || c != other.c) {
-        cerr << "Error: rows is not equal to column\n";
+        throw runtime_error("Error: Matrix dimensions don't match for subtraction");
     }
     Matrix res(r, c);
     for (int i = 0; i < r; i++) {
@@ -87,7 +98,8 @@ bool Matrix::isIdentity() const {
     if (r != c) return false;
     for (int i = 0; i < r; i++) {
         for (int j = 0; j < c; j++) {
-            if ((i == j && matrix[i][j] != 1.0) || (i != j && matrix[i][j] != 0.0)) {
+            if ((i == j && fabs(matrix[i][j] - 1.0) > 1e-9) || 
+                (i != j && fabs(matrix[i][j]) > 1e-9)) {
                 return false;
             }
         }
@@ -95,16 +107,30 @@ bool Matrix::isIdentity() const {
     return true;
 }
 
+
+
 void Matrix::eliminate() {
     for (int i = 0; i < r; i++) {
+        // Partial pivoting
         int maxRow = i;
+        double maxVal = fabs(matrix[i][i]);
         for (int k = i + 1; k < r; k++) {
-            if (fabs(matrix[k][i]) > fabs(matrix[maxRow][i])) {
+            if (fabs(matrix[k][i]) > maxVal) {
+                maxVal = fabs(matrix[k][i]);
                 maxRow = k;
             }
         }
-        swap(matrix[i], matrix[maxRow]);
+        
+        if (maxRow != i) {
+            swap(matrix[i], matrix[maxRow]);
+        }
 
+        // Skip if pivot is zero (or very small)
+        if (fabs(matrix[i][i]) < 1e-12) {
+            continue;
+        }
+
+        // Elimination
         for (int j = i + 1; j < r; j++) {
             double factor = matrix[j][i] / matrix[i][i];
             for (int k = i; k < c; k++) {
@@ -112,21 +138,30 @@ void Matrix::eliminate() {
             }
         }
     }
-    cout << "\nAugmented Matrix\n";
+    cout << "\nUpper Triangular Matrix after Gaussian Elimination:\n";
     display();
-        
-        for (int i = r - 1; i >= 0; i--) {
-            double sum = 0;
-            for (int j = i + 1; j < c - 1; j++) {
-                sum += matrix[i][j] * x[j];
+}
+
+void Matrix::backSubstitute() {
+    solution.resize(r);
+    for (int i = r - 1; i >= 0; i--) {
+        if (fabs(matrix[i][i]) < 1e-12) {
+            if (fabs(matrix[i][c-1]) < 1e-12) {
+                cerr << "System has infinitely many solutions." << endl;
+            } else {
+                cerr << "System has no solution." << endl;
             }
-            x[i] = (matrix[i][c - 1] - sum) / matrix[i][i];
+            solution.clear();
+            return;
         }
+        
+        solution[i] = matrix[i][c-1];
+        for (int j = i + 1; j < r; j++) {
+            solution[i] -= matrix[i][j] * solution[j];
+        }
+        solution[i] /= matrix[i][i];
     }
-    
-
-
-  
+}
 
 void Matrix::Doolittle() {
     if (r != c) {
@@ -155,9 +190,10 @@ void Matrix::Doolittle() {
             }
         }
     }
-    cout << "\nLower Triangular Matrix\n";
+    cout << "\nDoolittle LU Decomposition\n";
+    cout << "Lower Triangular Matrix (L):\n";
     L.display();
-    cout << "\nUpper Triangular Matrix\n";
+    cout << "Upper Triangular Matrix (U):\n";
     U.display();
 }
 
@@ -190,4 +226,113 @@ void Matrix::crout() {
     L.display();
     cout << "Upper Triangular Matrix (U):\n";
     U.display();
+}
+
+bool Matrix::isDiagonallyDominant() const {
+    for (int i = 0; i < r; i++) {
+        double sum = 0.0;
+        for (int j = 0; j < r; j++) {
+            if (j != i) sum += fabs(matrix[i][j]);
+        }
+        if (fabs(matrix[i][i]) <= sum) return false;
+    }
+    return true;
+}
+
+Matrix Matrix::gaussJacobi(int maxIterations, double tolerance) {
+    if (r != c) {  
+        cerr << "Error: Matrix must be square\n";
+        return;
+    }
+
+    if (!isDiagonallyDominant()) {
+        cout << "Matrix is not diagonally dominant\n";
+    }
+
+    // vector<double> x(r, 0.0);     
+    // vector<double> newX(r, 0.0);  
+    Matrix x(r,1);
+    Matrix newX(r,1);
+    
+    int iterations = 0;          
+    double error = tolerance + 1; 
+
+    cout << "Iterations:\n";
+    while (iterations < maxIterations && error > tolerance) {
+        error = 0.0;
+        cout << "Iteration " << iterations + 1 << ": ";
+
+        for (int i = 0; i < r; i++) {
+            double sum = 0.0;
+            for (int j = 0; j < r; j++) {
+                if (j != i) {
+                    sum += matrix[i][j] * x.matrix[j][0];
+                }
+            }
+            newX[i] = (matrix[i][r] - sum) / matrix[i][i];
+            error += fabs(newX.matrix[i][0] - x.matrix[i][0]);
+
+            // cout << "x[" << i << "]=" << setprecision(6) << newX[i] << " ";
+        }
+
+        x = newX;
+        cout << endl;
+        iterations++;
+    }
+
+    return x;
+    
+    cout << "\nGauss-Jacobi Method\n";
+    cout << "Total iterations: " << iterations << endl;
+    cout << "Final error: " << error << endl;
+}
+
+
+Matrix Matrix::gaussSeidel(int maxIterations, double tolerance) {
+    if (r != c) {
+        cerr << "Error: Matrix must be square\n";
+        return;
+    }
+
+    if (!isDiagonallyDominant()) {
+        cout << "Warning: Matrix is not diagonally dominant. Convergence not guaranteed.\n";
+    }
+
+    for (int i = 0; i < r; i++) {
+        sol[i] = 0.0;
+    }
+
+    int iterations = 0;
+    double error = tolerance + 1;
+
+    cout << "Iterations:\n";
+    while (iterations < maxIterations && error > tolerance) {
+        error = 0.0;
+
+        cout << "Iteration " << iterations + 1 << ": ";
+
+        for (int i = 0; i < r; i++) {
+            double sum = 0.0;
+
+            for (int j = 0; j < r; j++) {
+                if (j != i) {
+                    sum += matrix[i][j] * sol[j];
+                }
+            }
+
+            double newX = (matrix[i][r] - sum) / matrix[i][i];
+            error += fabs(newX - sol[i]);  
+
+            solution[i] = newX; 
+
+            cout << "x[" << i << "]=" << setprecision(6) << sol[i] << " ";
+        }
+
+        cout << endl;
+        iterations++;
+    }
+
+    cout << "\nGauss-Seidel Method\n";
+    cout << "Total iterations: " << iterations << endl;
+    cout << "Final error: " << error << endl;
 }
