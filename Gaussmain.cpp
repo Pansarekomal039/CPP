@@ -7,5 +7,5 @@ int main() {
     solver.backSubstitute();
     solver.printSolution();
     
-    return 0; 
+    return 0;  
 }
