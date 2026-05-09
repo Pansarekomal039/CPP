@@ -1,7 +1,7 @@
 #include<iostream>
 using namespace std;
 int main()
-{
+{ 
 float c,f;
 cout << "Enter the temperature in Celcius" << endl;
 cin >> c;
