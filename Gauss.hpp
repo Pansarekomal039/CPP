@@ -6,7 +6,7 @@ private:
     vector<double> sol;
     int n;
     int m;
-
+ 
 public:
     void readMatrix();
     void eliminate();
